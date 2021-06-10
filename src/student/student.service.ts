@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { students } from '../db';
 import {v4 as uuid} from 'uuid'; 
 import { FindStudentResponseDto, CreateStudentDto, StudentResponseDto, UpdateStudentDto } from '../student/dto/student.dto'
+import { FindTeacherResponseDto } from 'src/teacher/dto/teacher.dto';
+
 
 @Injectable()
 export class StudentService {
@@ -31,15 +33,39 @@ export class StudentService {
     let updatedStudent: StudentResponseDto;
 
     const updatedStudentList = this.students.map(student =>{
-      if(student.id == studentId){
+      if(student.id === studentId){
         updatedStudent = {
           id: studentId,
           ...payload
         }
+        return updatedStudent
       } else return student
     });
 
     this.students = updatedStudentList;
     return updatedStudent; 
+  }
+
+  getStudentsByTeacherId(teacherId : string): FindStudentResponseDto[]{
+    return this.students.filter(student => {
+      return student.teacher === teacherId
+    })
+  }
+
+  updateStudentTeacher(teacherId: string, studentId: string):StudentResponseDto{
+    let updateStudent : StudentResponseDto;
+
+    const updateStudentList = this.students.map(student => {
+      if(student.id === studentId) {
+        updateStudent = {
+          ...student,
+          teacher: teacherId 
+        }
+        return updateStudent
+      } else return student; 
+    });
+
+    this.students = updateStudentList 
+    return updateStudent; 
   }
 }
